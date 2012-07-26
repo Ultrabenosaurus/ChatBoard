@@ -1,11 +1,16 @@
 /* main functionality */
 // when document finishes loading, update messages display every second
 $(document).ready(function(){
+	// initial message load and scroll to bottom
 	readMsgs();
 	setTimeout(function(){
 		$("#msgs").scrollTop(500);
 	}, 50);
+	
+	// refresh messages every second
 	setInterval(readMsgs, 1000);
+	// return to bottom every 10 seconds 
+	// this allows users to scroll up to previous messages
 	setInterval(function(){
 		$("#msgs").scrollTop(500);
 	}, 10000);
@@ -14,11 +19,11 @@ $(document).ready(function(){
 function readMsgs(){
 	$.ajax({
 		type: 'POST',
-		data: {read: ""},
+		data: {read: ""}, // request contents of messages file
 		url: 'chat.php',
 		success: function(ret){
 			ret = ret.toString();
-			$("#msgs").html(format_bb(ret));
+			$("#msgs").html(format_bb(ret)); // turn BBCode into HTML tags
 			//console.log(ret);
 		},
 		error: function(e){
@@ -28,12 +33,14 @@ function readMsgs(){
 }
 // add new message to list
 function sendMsg(){
+	// delete any HTML from input
 	var msg = strip_tags($("#new_msg").val());
 	$.ajax({
 		type: 'POST',
 		data: {msg: msg},
 		url: 'chat.php',
 		success: function(ret){
+			// empty the input box on success
 			$("#new_msg").val("");
 		},
 		error: function(e){
@@ -42,9 +49,11 @@ function sendMsg(){
 	});
 }
 // register a name to an IP
+// only used at ./?reg
 function regUser(){
+	// extract username
 	var user = $("#user_name").val();
-	console.log(user);
+	//console.log(user);
 	window.location.href = "./?reg="+user;
 }
 
@@ -61,12 +70,24 @@ function strip_tags(html){
 }
 // add allowed HTML according to BBCode rules
 function format_bb(text){
+	// call nl2br() first so that the replace() calls don't fuck up the newline characters
 	text = nl2br(text, true);
+	
+	// turn [b] into <strong>
 	text = text.replace(/\[b\]/gi, "<strong>").replace(/\[\/b\]/gi, "</strong>");
+	// turn [i] into <em>
 	text = text.replace(/\[i\]/gi, "<em>").replace(/\[\/i\]/gi, "</em>");
+	// turn <u> into <span class='under'>
 	text = text.replace(/\[u\]/gi, "<span class='under'>").replace(/\[\/u\]/gi, "</span>");
+	// turn [url http://www.google.com/] into <a href="http://www.google.com">
 	text = text.replace(/\[url ([^\]]*)\]/gi, "<a href='$1'>").replace(/\[\/url\]/gi, "</a>");
+	// turn the end "]" of an [img] code into " />"
+	// prevents issues when trying to catch a URL followed immediately by "]"
 	text = text.replace(/\[img [:\/\.a-z\s]([\]])/gi, " />")
+	// turn [img http://www.muffins.org/muffins.jpg] into <img src="http://www.muffins.org/muffins.jpg"
+	// look for width and height values, add them if found
 	text = text.replace(/\[img ([:\/\.a-z]*[^\]\s])/gi, "<img src='$1'").replace(/w:([0-9]*)/gi, " width='$1'").replace(/h:([0-9]*)/gi, " height='$1'").replace(/\]/gi, " />");
+	
+	// return modified text for display
 	return text;
 }
