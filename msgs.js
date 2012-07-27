@@ -79,14 +79,16 @@ function format_bb(text){
 	text = text.replace(/\[i\]/gi, "<em>").replace(/\[\/i\]/gi, "</em>");
 	// turn <u> into <span class='under'>
 	text = text.replace(/\[u\]/gi, "<span class='under'>").replace(/\[\/u\]/gi, "</span>");
-	// turn [url http://www.google.com/] into <a href="http://www.google.com">
-	text = text.replace(/\[url ([^\]]*)\]/gi, "<a href='$1'>").replace(/\[\/url\]/gi, "</a>");
+	// turn [url http://www.google.com/] into a valid HTML link
+	// opens in a new tab
+	text = text.replace(/\[url ([^\]]*)\]/gi, "<a href='$1' target='_blank'>").replace(/\[\/url\]/gi, "</a>");
 	// turn the end "]" of an [img] code into " />"
 	// prevents issues when trying to catch a URL followed immediately by "]"
 	text = text.replace(/\[img [:\/\.a-z\s]([\]])/gi, " />")
 	// turn [img http://www.muffins.org/muffins.jpg] into <img src="http://www.muffins.org/muffins.jpg"
 	// look for width and height values, add them if found
-	text = text.replace(/\[img ([:\/\.a-z]*[^\]\s])/gi, "<img src='$1'").replace(/w:([0-9]*)/gi, " width='$1'").replace(/h:([0-9]*)/gi, " height='$1'").replace(/\]/gi, " />");
+	// also makes the image a link to itself in a new tab
+	text = text.replace(/\[img ([:\/\.a-z]*[^\]\s])/gi, "<a href='$1' target='_blank'><img src='$1'").replace(/w:([0-9]*)/gi, " width='$1'").replace(/h:([0-9]*)/gi, " height='$1'").replace(/\]/gi, " /></a>");
 	
 	// return modified text for display
 	return text;
