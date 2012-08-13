@@ -22,26 +22,40 @@ $conn = $db->connect();
 </head>
 	<body>
 		<?php
-		echo "cheese";
+		$temp = $db->db_res->errno;
+		echo gettype($temp);
+		
+		echo "<pre>" . print_r($db, true) . "</pre>";
+		
 		if(gettype($conn) === 'boolean'){
 			if($conn){
 				$query = $db->query($db->prepare("SELECT * FROM `users`"));
 				if(!$db->errors()){
-					echo "<h2>DATA</h2>\n";
+					echo "<h2>DATA</h2>\n<p>\n";
 					foreach ($query as $key => $value) {
-						echo "<p>$key - $value</p>\n";
+						foreach ($value as $k => $v) {
+							echo "$k - $v<br />\n";
+						}
+						echo "<br />";
 					}
+					echo "</p>\n";
 				} else {
 					echo "<h2>ERRORS</h2>\n";
-					echo "<p>".$db->errors()."</p>\n";
+					echo "Connection Status: <pre>" . print_r($conn, true) . "</pre>";
+					echo "Error: <pre>" . print_r($db->errors(), true) . "</pre>";
 				}
 			}
 		} else {
 			echo "<h2>ERRORS</h2>\n";
-			echo "<p>".$db->errors()."</p>\n";
-			echo "<p>".$conn."</p>\n";
+			echo "Connection Status: <pre>" . print_r($conn, true) . "</pre>";
+			echo "Error: <pre>" . print_r($db->errors(), true) . "</pre>";
 		}
 		
 		?>
 	</body>
 </html>
+<?php
+
+$db->conn_die();
+
+?>
